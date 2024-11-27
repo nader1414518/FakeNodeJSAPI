@@ -38,7 +38,9 @@ app.post("/register", async (req, res) => {
   console.log(user);
   users.push(user);
 
-  res.status(201).json({ message: "User registered successfully" });
+  res
+    .status(201)
+    .json({ result: true, message: "User registered successfully" });
 });
 
 // Login
@@ -48,18 +50,18 @@ app.post("/login", async (req, res) => {
   // Find user
   const user = users.find((user) => user.username === username);
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ result: false, message: "User not found" });
   }
 
   // Validate password
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
-    return res.status(401).json({ message: "Invalid password" });
+    return res.status(401).json({ result: false, message: "Invalid password" });
   }
 
   // Generate token
   const token = generateToken(user);
-  res.json({ message: "Login successful", token });
+  res.json({ result: true, message: "Login successful", token });
 });
 
 // Get user data
@@ -67,18 +69,18 @@ app.get("/user", (req, res) => {
   const token = req.headers["authorization"];
 
   if (!token) {
-    return res.status(401).json({ message: "Token is missing" });
+    return res.status(401).json({ result: false, message: "Token is missing" });
   }
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
     const user = users.find((u) => u.id === decoded.id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ result: false, message: "User not found" });
     }
-    res.json({ id: user.id, username: user.username });
+    res.json({ result: true, id: user.id, username: user.username });
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
+    res.status(401).json({ result: false, message: "Invalid token" });
   }
 });
 
