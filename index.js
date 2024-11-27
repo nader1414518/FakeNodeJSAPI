@@ -10,7 +10,13 @@ app.use(bodyParser.json());
 const SECRET_KEY = "your_secret_key";
 
 // Mock database
-const users = [];
+const users = [
+  {
+    id: 1,
+    username: "test@gmail.com",
+    password: "$2a$10$boUcTuB37d0VZTO4QhikKeH7h0Pe3NE.3Uvwi8YqTmndFJAk1TbPq",
+  },
+];
 
 // Helper: Generate JWT
 const generateToken = (user) => {
@@ -35,7 +41,7 @@ app.post("/register", async (req, res) => {
 
   // Add user to mock database
   const user = { id: users.length + 1, username, password: hashedPassword };
-  console.log(user);
+  //   console.log(user);
   users.push(user);
 
   res
@@ -73,7 +79,7 @@ app.get("/user", (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(token, SECRET_KEY);
+    const decoded = jwt.verify(token.replaceAll("Bearer ", ""), SECRET_KEY);
     const user = users.find((u) => u.id === decoded.id);
     if (!user) {
       return res.status(404).json({ result: false, message: "User not found" });
